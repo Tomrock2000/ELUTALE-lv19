@@ -151,7 +151,7 @@ function cambiarFondo(imagenFondo) {
 }
 
 function playBlip() {
-    const frecuencia = 2; 
+    const frecuencia = 3; 
     if (charIndex % frecuencia !== 0) return;
 
     blipSound.currentTime = 0; 
