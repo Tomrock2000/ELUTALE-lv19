@@ -14,6 +14,15 @@ const bgLayer = document.getElementById('bg-layer');
 
 // Controladores de Audio
 const blipSound = document.getElementById('blip-sound');
+const audioPool = [];
+const poolSize = 5; // 5 canales simultáneos
+
+for (let i = 0; i < poolSize; i++) {
+    // Instanciamos 5 audios pre-cargados usando la misma fuente
+    let snd = new Audio(blipSound.src);
+    audioPool.push(snd);
+}
+let poolIndex = 0;
 const selectSound = document.getElementById('select-sound'); 
 const bgMusic = document.getElementById('bg-music');
 
@@ -151,12 +160,17 @@ function cambiarFondo(imagenFondo) {
 }
 
 function playBlip() {
-    const frecuencia = 3; 
+    const frecuencia = 2; 
+    
     if (charIndex % frecuencia !== 0) return;
 
-    blipSound.currentTime = 0; 
-    blipSound.volume = 0.5; 
-    blipSound.play().catch(e => console.log("Silenciado por el navegador móvil", e));
+    // Tomamos el audio actual de la piscina
+    let sound = audioPool[poolIndex];
+    sound.currentTime = 0; 
+    sound.play().catch(e => console.log("Silenciado", e));
+
+    // Matemáticas discretas: rotamos el índice circularmente (0, 1, 2, 3, 4, 0, 1...)
+    poolIndex = (poolIndex + 1) % poolSize;
 }
 
 // ==========================================
@@ -221,22 +235,28 @@ startBtn.addEventListener('click', () => {
 
     // Secuencia de inicio tras el flash
     setTimeout(() => {
-        blipSound.volume = 0;
-        blipSound.play().then(() => {
-            blipSound.pause();
-            blipSound.currentTime = 0;
-            blipSound.volume = 0.5;
-        }).catch(e => console.log(e));
+        // Desbloqueo masivo de la piscina de audios para móviles
+        audioPool.forEach(snd => {
+            snd.volume = 0;
+            snd.play().then(() => {
+                snd.pause();
+                snd.currentTime = 0;
+                snd.volume = 0.5; // Volumen normal
+            }).catch(e => console.log("Audio bloqueado", e));
+        });
 
+        // Arranca la música suavemente
         bgMusic.volume = 0.15;
         bgMusic.play();
 
+        // Mostramos la interfaz del juego
         startScreen.classList.add('hidden');
         gameScreen.classList.remove('hidden');
         
+        // PAUSA DRAMÁTICA EXTRA
         setTimeout(startDialog, 1000); 
-    }, 2000); 
-});
+        
+    }, 2000);
 
 dialogBox.addEventListener('click', () => {
     if (!optionsContainer.classList.contains('hidden')) return;
