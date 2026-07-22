@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Para Elununey</title>
+    <link rel="icon" type="image/png" href="heart.png">
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <!-- Capa de fondo cinematográfico -->
+    <div id="bg-layer"></div>
+
+    <!-- Pantalla de inicio (Requerido para desbloqueo de audio en iOS) -->
+    <div id="start-screen">
+        <h1 style="font-family: 'Determination', monospace; font-size: 50px; text-align: center; margin-bottom: 40px; letter-spacing: 5px;">ELUTALE(LV 19)</h1>
+        <button id="start-btn">
+            <img src="heart.png" class="btn-heart" alt="Corazón"> TOCAR PARA INICIAR <img src="heart.png" class="btn-heart" alt="Corazón">
+        </button>
+    </div>
+
+    <!-- Contenedor principal de la aplicación -->
+    <div id="game-screen" class="hidden">
+        
+        <!-- Botones de decisión -->
+        <div id="options-container" class="hidden">
+            <button class="rpg-btn" id="btn-accept">
+                <img src="heart.png" class="btn-heart" alt="Corazón"> ACEPTAR
+            </button>
+            <button class="rpg-btn" id="btn-decline">RECHAZAR</button>
+        </div>
+
+        <!-- Interfaz de diálogo -->
+        <div id="dialog-box">
+            <div id="avatar-container">
+                <img id="avatar" src="yo.png" alt="Avatar"> 
+            </div>
+            <div id="text-container">
+                <p id="dialog-text"></p>
+                <span id="next-indicator" class="hidden">▼</span>
+            </div>
+        </div>
+    </div>
+
+    <!-- Controladores de Audio -->
+    <audio id="blip-sound" src="sans.mp3" preload="auto"></audio>
+    <audio id="select-sound" src="savepoint.mp3" preload="auto"></audio>
+    <audio id="bg-music" src="Snowdin Town.mp3" loop preload="auto"></audio>
+    
+    <script src="script.js"></script>
+</body>
+</html>
