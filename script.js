@@ -154,9 +154,9 @@ function playBlip() {
     const frecuencia = 2; 
     if (charIndex % frecuencia !== 0) return;
 
-    let soundClone = blipSound.cloneNode();
-    soundClone.volume = 0.5; 
-    soundClone.play().catch(e => console.log("El navegador bloqueó el audio", e));
+    blipSound.currentTime = 0; 
+    blipSound.volume = 0.5; 
+    blipSound.play().catch(e => console.log("Silenciado por el navegador móvil", e));
 }
 
 // ==========================================
