@@ -19,7 +19,7 @@ body {
     display: flex;
     justify-content: center;
     align-items: center;
-    height: 100vh;
+    height: 100dvh; /
     overflow: hidden; 
 }
 
@@ -187,10 +187,11 @@ body {
    ========================================== */
 @media (max-width: 600px) {
     /* La caja ahora crecerá según el texto y no tendrá altura fija */
-    #dialog-box {
+   #dialog-box {
         height: auto; 
         min-height: 150px;
         padding: 12px;
+        margin-bottom: 25px; /* <--- Le da aire por debajo para que no toque el borde del teléfono */
     }
 
     /* Achicamos tu avatar para darle más espacio horizontal al texto */
@@ -202,7 +203,7 @@ body {
 
     /* Reducimos la letra del diálogo para que quepan más palabras por línea */
     #dialog-text {
-        font-size: 18px; 
+        font-size: 16px; 
     }
 
     /* Ajustamos el tamaño del título y botón de inicio */
