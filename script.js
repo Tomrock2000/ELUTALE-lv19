@@ -12,20 +12,26 @@ const btnAccept = document.getElementById('btn-accept');
 const btnDecline = document.getElementById('btn-decline');
 const bgLayer = document.getElementById('bg-layer');
 
-// Controladores de Audio
-const blipSound = document.getElementById('blip-sound');
-const audioPool = [];
-const poolSize = 5; // 5 canales simultáneos
+// ==========================================
+// WEB AUDIO API (Latencia Cero para Móviles)
+// ==========================================
+// 1. Creamos el contexto de audio (el motor interno)
+const AudioContext = window.AudioContext || window.webkitAudioContext;
+const audioCtx = new AudioContext();
+let blipBuffer = null;
 
-for (let i = 0; i < poolSize; i++) {
-    // Instanciamos 5 audios pre-cargados usando la misma fuente
-    let snd = new Audio(blipSound.src);
-    audioPool.push(snd);
-}
-let poolIndex = 0;
+// 2. Descargamos y decodificamos el mp3 a la memoria RAM
+fetch('sans.mp3')
+    .then(response => response.arrayBuffer())
+    .then(arrayBuffer => audioCtx.decodeAudioData(arrayBuffer))
+    .then(audioBuffer => {
+        blipBuffer = audioBuffer;
+        console.log("Audio cargado en RAM exitosamente");
+    })
+    .catch(e => console.error("Error cargando el audio de Sans", e));
+
 const selectSound = document.getElementById('select-sound'); 
 const bgMusic = document.getElementById('bg-music');
-
 // ==========================================
 // CONFIGURACIÓN DEL GUION
 // Formato: { texto: "String", fondo: "nombre_archivo.jpg" }
@@ -160,17 +166,25 @@ function cambiarFondo(imagenFondo) {
 }
 
 function playBlip() {
-    const frecuencia = 2; 
+    const frecuencia = 2; // Aquí sí puedes bajar a 2 o 1 porque es ultra rápido
     
-    if (charIndex % frecuencia !== 0) return;
+    // Si no toca sonar, o si el audio aún no carga, no hacemos nada
+    if (charIndex % frecuencia !== 0 || !blipBuffer) return;
 
-    // Tomamos el audio actual de la piscina
-    let sound = audioPool[poolIndex];
-    sound.currentTime = 0; 
-    sound.play().catch(e => console.log("Silenciado", e));
+    // Creamos un emisor de sonido directo desde la RAM
+    const source = audioCtx.createBufferSource();
+    source.buffer = blipBuffer;
 
-    // Matemáticas discretas: rotamos el índice circularmente (0, 1, 2, 3, 4, 0, 1...)
-    poolIndex = (poolIndex + 1) % poolSize;
+    // Le bajamos el volumen a la mitad
+    const gainNode = audioCtx.createGain();
+    gainNode.gain.value = 0.5;
+
+    // Conectamos: Audio -> Volumen -> Bocinas
+    source.connect(gainNode);
+    gainNode.connect(audioCtx.destination);
+
+    // ¡Fuego!
+    source.start(0);
 }
 
 // ==========================================
@@ -207,12 +221,16 @@ function startDialog() {
 // EVENTOS DE INTERACCIÓN
 // ==========================================
 startBtn.addEventListener('click', () => {
+    // NUEVO: Despertamos el motor de audio en el primer toque
+    if (audioCtx.state === 'suspended') {
+        audioCtx.resume();
+    }
+
     selectSound.volume = 0.5;
     selectSound.play().catch(e => console.log(e));
 
     startBtn.style.display = 'none';
     document.querySelector('#start-screen h1').style.display = 'none';
-
     // Generación dinámica del flash overlay
     let flashOverlay = document.createElement('div');
     flashOverlay.style.position = 'fixed';
@@ -234,18 +252,9 @@ startBtn.addEventListener('click', () => {
     }, 800);
 
     // Secuencia de inicio tras el flash
-    setTimeout(() => {
-        // Desbloqueo masivo de la piscina de audios para móviles
-        audioPool.forEach(snd => {
-            snd.volume = 0;
-            snd.play().then(() => {
-                snd.pause();
-                snd.currentTime = 0;
-                snd.volume = 0.5; // Volumen normal
-            }).catch(e => console.log("Audio bloqueado", e));
-        });
-
-        // Arranca la música suavemente
+   setTimeout(() => {
+        
+        // Arranca la música suavemente (Esto se queda igual)
         bgMusic.volume = 0.15;
         bgMusic.play();
 
@@ -257,7 +266,7 @@ startBtn.addEventListener('click', () => {
         setTimeout(startDialog, 1000); 
         
     }, 2000);
-    });
+});
 
 dialogBox.addEventListener('click', () => {
     if (!optionsContainer.classList.contains('hidden')) return;
