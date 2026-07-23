@@ -304,7 +304,15 @@ btnAccept.addEventListener('click', () => {
 });
 
 btnDecline.addEventListener('click', () => {
-    blipSound.currentTime = 0;
-    blipSound.play();
+    if (blipBuffer) {
+        const source = audioCtx.createBufferSource();
+        source.buffer = blipBuffer;
+        const gainNode = audioCtx.createGain();
+        gainNode.gain.value = 0.5;
+        source.connect(gainNode);
+        gainNode.connect(audioCtx.destination);
+        source.start(0);
+    }
+
     dialogText.innerHTML = "* Opción bloqueada por el sistema. Tienes que aceptar (la otra forma de negarte es dando una mortal hacia atrás). *";
 });
