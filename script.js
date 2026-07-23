@@ -257,6 +257,7 @@ startBtn.addEventListener('click', () => {
         setTimeout(startDialog, 1000); 
         
     }, 2000);
+    });
 
 dialogBox.addEventListener('click', () => {
     if (!optionsContainer.classList.contains('hidden')) return;
